@@ -1,0 +1,32 @@
+{
+  "name": "task-management-api",
+  "version": "1.0.0",
+  "description": "A comprehensive RESTful API for managing tasks, built with Node.js. The API supports user authentication, role-based access control (RBAC), task management, and third-party notification integration. It follows industry best practices and includes documentation using the OpenAPI Specification (OAS).",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "body-parser": "^1.20.3",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "helmet": "^8.0.0",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.9.3",
+    "morgan": "^1.10.0",
+    "nodemailer": "^6.9.16",
+    "nodemon": "^3.1.9",
+    "openapi-doc": "^5.0.4",
+    "passport": "^0.7.0",
+    "passport-jwt": "^4.0.1",
+    "rate-limiter-flexible": "^5.0.4",
+    "redis": "^4.7.0",
+    "socket.io": "^4.8.1"
+  }
+}

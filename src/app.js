@@ -44,6 +44,7 @@ const swaggerOptions = {
           version: '1.0.0',
           description: 'API for Task Management',
       },
+      schemes: ['https', 'http'],
       servers: [
           {
               url: 'http://localhost:4003',

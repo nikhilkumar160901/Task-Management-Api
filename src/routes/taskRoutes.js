@@ -3,14 +3,17 @@ const router = express.Router();
 const { createTask, getTasks, assignTask, updateTask, deleteTask, updateTaskAssignment, viewAssignedTasks } = require('../controllers/taskController');
 const { authMiddleware } = require('../middlewares/authMiddleware');
 const { checkRole } = require('../middlewares/roleMiddleware');
+const generalLimiter = require('../utils/rateLimit');
+const validate = require('../middlewares/validate');
+const { createTaskSchema, updateTaskSchema, assignTaskSchema, updateTaskAssignmentSchema } = require('../validations/taskValidation');
 
-router.post('/', authMiddleware, createTask);
-router.get('/', authMiddleware, getTasks);
-router.put('/:id', authMiddleware, updateTask);
-router.delete('/:id', authMiddleware, deleteTask);
-router.post('/assign', authMiddleware, checkRole(['Manager', 'Admin']), assignTask);
-router.get('/view', authMiddleware, viewAssignedTasks);
-router.post('/update', authMiddleware, checkRole(['Admin', 'Manager']), updateTaskAssignment);
+router.post('/', authMiddleware, generalLimiter, validate(createTaskSchema), createTask);
+router.get('/', authMiddleware, generalLimiter, getTasks);
+router.put('/:id', authMiddleware, generalLimiter, validate(updateTaskSchema), updateTask);
+router.delete('/:id', authMiddleware, generalLimiter, deleteTask);
+router.post('/assign', authMiddleware, checkRole(['Manager', 'Admin']), generalLimiter, validate(assignTaskSchema), assignTask);
+router.get('/view', authMiddleware, generalLimiter, viewAssignedTasks);
+router.post('/update', authMiddleware, checkRole(['Admin', 'Manager']), generalLimiter, validate(updateTaskAssignmentSchema), updateTaskAssignment);
 
 module.exports = router;
 
@@ -55,22 +58,81 @@ module.exports = router;
  *         description: Server error
  */
 
+
 /**
  * @swagger
  * /api/tasks:
  *   get:
- *     summary: Retrieve a list of tasks
+ *     summary: Retrieve a list of tasks with optional filtering, and pagination
  *     tags: [Task]
  *     security:
  *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter tasks by status
+ *       - in: query
+ *         name: priority
+ *         schema:
+ *           type: string
+ *         description: Filter tasks by priority
+ *       - in: query
+ *         name: dueDate
+ *         schema:
+ *           type: string
+ *           format: date
+ *         description: Filter tasks by due date
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Page number for pagination
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Number of tasks per page
  *     responses:
  *       200:
  *         description: List of tasks retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 count:
+ *                   type: integer
+ *                   description: Total number of tasks
+ *                 tasks:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       _id:
+ *                         type: string
+ *                       title:
+ *                         type: string
+ *                       description:
+ *                         type: string
+ *                       dueDate:
+ *                         type: string
+ *                         format: date
+ *                       priority:
+ *                         type: string
+ *                       status:
+ *                         type: string
+ *                       createdBy:
+ *                         type: string
  *       401:
  *         description: Unauthorized
  *       500:
  *         description: Server error
  */
+
 
 /**
  * @swagger

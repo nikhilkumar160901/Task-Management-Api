@@ -3,8 +3,16 @@ const router = express.Router();
 const { register, login, logout} = require('../controllers/authController');
 const { loginSchema, registerSchema } = require('../validations/authValidation');
 const validate = require('../middlewares/validate');
-const loginRateLimiter = require('../utils/rateLimiter');
+const loginRateLimiter = require('../utils/loginRateLimiter');
 const checkBlacklist = require('../middlewares/checkBlacklist');
+
+
+
+router.post('/register', validate(registerSchema), register);
+router.post('/login', loginRateLimiter, validate(loginSchema), login);
+router.post('/logout', checkBlacklist, logout);
+
+
 
 
 /**
@@ -42,9 +50,6 @@ const checkBlacklist = require('../middlewares/checkBlacklist');
  */
 
 
-router.post('/register', validate(registerSchema), register);
-
-
 /**
  * @swagger
  * /api/auth/login:
@@ -76,9 +81,23 @@ router.post('/register', validate(registerSchema), register);
  *       500:
  *         description: Server error
  */
-router.post('/login', loginRateLimiter, validate(loginSchema), login);
 
-router.post('/logout', checkBlacklist, logout);
 
+/**
+ * @swagger
+ * /api/auth/logout:
+ *   post:
+ *     summary: Log out the authenticated user
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Logged out successfully
+ *       401:
+ *         description: Unauthorized
+ *       500:
+ *         description: Server error
+ */
 
 module.exports = router;

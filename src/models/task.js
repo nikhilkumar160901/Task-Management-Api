@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const { assign } = require('nodemailer/lib/shared');
 
 const taskSchema = new mongoose.Schema({
     title: { type: String, required: true },

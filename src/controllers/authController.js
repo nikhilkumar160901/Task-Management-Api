@@ -45,7 +45,7 @@ const login = async (req, res) => {
 
 const logout = (req, res) => {
     const token = req.headers['authorization'].split(' ')[1];
-    const expiresIn = 60 * 60; // 1 hour (same as token expiration time)
+    const expiresIn = 60 * 60;
     redisClient.setex(token, expiresIn, 'blacklisted', (err, reply) => {
         if (err) {
             return res.status(500).json({ message: 'Server error', error: err });

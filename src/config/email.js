@@ -1,4 +1,3 @@
-require("dotenv").config(); 
   const config = {
     email: {
       from: process.env.EMAIL_FROM,

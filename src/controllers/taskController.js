@@ -1,5 +1,7 @@
 const Task = require('../models/task');
 const User = require('../models/user');
+const redis = require('../redisClient');
+
 
 const createTask = async (req, res) => {
     try {
@@ -14,6 +16,7 @@ const createTask = async (req, res) => {
         });
 
         await task.save();
+        req.io.emit('taskCreated', task);
         res.status(201).json({ message: 'Task created successfully', task });
     } catch (error) {
         res.status(500).json({ message: 'Server Error', error });
@@ -22,10 +25,32 @@ const createTask = async (req, res) => {
 
 const getTasks = async (req, res) => {
     try {
-        const tasks = await Task.find({ createdBy: req.user.id });
-        res.status(200).json(tasks);
+        const { status, priority, dueDate } = req.query;
+        const query = { createdBy: req.user.id };
+        if (status) query.status = status;
+        if (priority) query.priority = priority;
+        if (dueDate) query.dueDate = { $lte: new Date(dueDate) };
+        const limit = parseInt(req.query.limit) || 10;
+        const page = parseInt(req.query.page) || 1;
+        const skip = (page - 1) * limit;
+
+        const cacheKey = `tasks:${req.user.id}:${status || 'all'}:${priority || 'all'}:${dueDate || 'all'}:${limit}:${page}`;
+
+        const cachedData = await redis.get(cacheKey);
+        if (cachedData) {
+            console.log('Data cached');
+            return res.status(200).json(JSON.parse(cachedData)); 
+        }
+        console.log('Data not cached', query);
+
+        let count = await Task.countDocuments();
+        const tasks = await Task.find(query).skip(skip).limit(limit);
+        const response = { count, tasks };
+        await redis.set(cacheKey, JSON.stringify(response), 'EX', 300);
+
+        res.status(200).json(response);
     } catch (error) {
-        res.status(500).json({ message: 'Server Error', error });
+        res.status(500).json({ message: 'Server error', error });
     }
 };
 
@@ -39,6 +64,11 @@ const updateTask = async (req, res) => {
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
+        const keys = await redis.keys(`tasks:${req.user.id}:*`);
+        if (keys.length > 0) {
+            await redis.del(keys); 
+        }
+        req.io.emit('taskUpdated', task);
         res.status(200).json(task);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
@@ -51,6 +81,12 @@ const deleteTask = async (req, res) => {
         if (!task) {
             return res.status(404).json({ message: 'Task not found' });
         }
+
+        const keys = await redis.keys(`tasks:${req.user.id}:*`);
+        if (keys.length > 0) {
+            await redis.del(keys);
+        }
+        req.io.emit('taskDeleted', { id: req.params.id });
         res.status(200).json({ message: 'Task deleted' });
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });
@@ -107,4 +143,4 @@ const updateTaskAssignment = async (req, res) => {
 };
 
 
-module.exports = { createTask, getTasks, updateTask, deleteTask, assignTask , viewAssignedTasks, updateTaskAssignment};
+module.exports = { createTask, getTasks, updateTask, deleteTask, assignTask, viewAssignedTasks, updateTaskAssignment };

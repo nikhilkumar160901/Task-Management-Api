@@ -7,23 +7,23 @@ A comprehensive RESTful API for managing tasks, built with Node.js. The API supp
 ## Features
 
 - User Authentication:
-   · Register, login, and logout functionality with JWT-based authentication.
+    Register, login, and logout functionality with JWT-based authentication.
 - Role-Based Access Control (RBAC):
-   · Three roles: Admin, Manager, and User with different permissions.
+    Three roles: Admin, Manager, and User with different permissions.
 - Task Management:
-   · CRUD operations for tasks, including filtering and sorting.
+    CRUD operations for tasks, including filtering and sorting.
 - Task Assignment:
-   · Assign tasks to users based on roles.
+    Assign tasks to users based on roles.
 - Real-Time Updates (Bonus):
-   · WebSocket notifications for task updates.
+    WebSocket notifications for task updates.
 - Analytics:
-   · Task statistics including pending, completed, and overdue tasks.
+    Task statistics including pending, completed, and overdue tasks.
 - Caching:
-   · Redis-based caching for frequently accessed endpoints.
+    Redis-based caching for frequently accessed endpoints.
 - Rate Limiting:
-   · Protection against abuse through endpoint rate limiting.
+    Protection against abuse through endpoint rate limiting.
 - Search and Filtering:
-   · Efficient querying and filtering for tasks based on status, priority, and due date.
+    Efficient querying and filtering for tasks based on status, priority, and due date.
 
 ---
 

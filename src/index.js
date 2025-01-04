@@ -3,7 +3,7 @@ const app = require("./app");
 const connectDB = require("./config/db");
 
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 4003;
 
 
 async function startServer() {
@@ -17,5 +17,6 @@ async function startServer() {
     process.exit(1);
   }
 }
+
 
 startServer();
